@@ -26,11 +26,13 @@ const Tile = ({
     <button
       disabled={show}
       type="button"
-      className={`${classes.root} tile ${show ? "show-content" : ""}`}
-      onClick={() => updateGame(id, false)}
+      className={`${classes.root} ${classes.tile} ${
+        show ? classes.showContent : ""
+      }`}
+      onClick={() => updateGame(id, true)}
       onContextMenu={handleFlag}
     >
-      {flag ? "⛳️" : ""}
+      {flag && !mine ? "⛳️" : ""}
       {show && mine ? "💣" : ""}
       {!flag && showContent && !done && !mine && minesAround ? minesAround : ""}
     </button>

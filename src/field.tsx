@@ -6,6 +6,41 @@ export const columns = 10;
 export const totalAmountOfTiles = columns * columns;
 export const amountOfMines = 15;
 
+function getTilesAround(
+  type: "all" | "sides",
+  field: IField,
+  currentX: number,
+  currentY: number
+) {
+  const positions =
+    type === "all"
+      ? [
+          [-1, -1], // topleft
+          [0, -1], // top
+          [1, -1], // topright
+          [1, 0], // right
+          [1, 1], // bottomright
+          [0, 1], // bottom
+          [-1, 1], // bottomleft
+          [-1, 0], // left
+        ]
+      : [
+          [0, -1], // top
+          [1, 0], // right
+          [0, 1], // bottom
+          [-1, 0], // left
+        ];
+
+  // Get tiles that match
+  return Object.values(field).filter((tile) => {
+    // Filter on match
+    return positions.some(
+      ([matchX, matchY]) =>
+        matchX === tile.x - currentX && matchY === tile.y - currentY
+    );
+  });
+}
+
 /**
  * The user clicked a tile, updated the field:
  * Show the current tile content
@@ -18,7 +53,28 @@ export function updateField(
 ) {
   const field = cloneDeep(oldField);
 
+  const tile = field[clickedTileId];
+
+  if (setFlag) {
+    tile.flag = setFlag;
+  }
+
+  tile.showContent = true;
+
+  const sides = tile.minesAround && tile.minesAround > 0 ? "sides" : "all";
   // Update the field here.
+  if (!tile.mine && !tile.minesAround) {
+    const neighboursTile = getTilesAround(sides, field, tile.x, tile.y);
+    for (const point of neighboursTile) {
+      const tile = Object.values(field).find(
+        (f) => f.x === point.x && f.y === point.y
+      );
+
+      if (tile) {
+        tile.showContent = true;
+      }
+    }
+  }
 
   return field;
 }
